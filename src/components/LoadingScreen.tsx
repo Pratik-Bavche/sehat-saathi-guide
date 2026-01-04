@@ -19,18 +19,10 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
   const [progress, setProgress] = useState(0);
 
   // ✅ Correct hook usage (no try/catch)
-  let appName = 'स्वास्थ्य साथी';
-  let loadingText = 'Loading';
+  const language = useLanguage();
 
-  try {
-    const lang = useLanguage();
-    if (lang?.t) {
-      appName = lang.t.appName ?? appName;
-      loadingText = lang.t.loading ?? loadingText;
-    }
-  } catch {
-    // fallback if provider not mounted
-  }
+  const appName = language?.t?.appName ?? 'स्वास्थ्य साथी';
+  const loadingText = language?.t?.loading ?? 'Loading';
 
   const prefersReducedMotion = useMemo(() => {
     if (typeof window === 'undefined') return false;
@@ -68,23 +60,32 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
       aria-busy="true"
     >
       {/* Logo */}
-      <div className="flex items-center gap-3 mb-6">
-        <Heart className="w-10 h-10 animate-pulse" />
-        <h1 className="text-2xl font-semibold">{appName}</h1>
-      </div>
-
-      {/* Loading text */}
-      <p className="mb-4 text-sm opacity-90">{loadingText}</p>
-
-      {/* Progress bar */}
-      <div className="w-64 h-2 bg-white/20 rounded overflow-hidden">
-        <div
-          className="h-full bg-white transition-all"
-          style={{ width: `${progress}%` }}
+      <div className="relative mb-8">
+        <Heart
+          className={`w-20 h-20 ${
+            prefersReducedMotion ? '' : 'animate-pulse'
+          }`}
+          fill="white"
         />
       </div>
 
-      <span className="mt-2 text-xs opacity-70">{progress}%</span>
+      {/* App Name */}
+      <h1 className="text-4xl font-bold mb-8">{appName}</h1>
+
+      {/* Progress Bar */}
+      <div className="w-64 bg-white/30 rounded-full h-2 overflow-hidden">
+        <div
+          className="bg-white h-full transition-all duration-300 ease-out"
+          style={{ width: `${progress}%` }}
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        />
+      </div>
+
+      {/* Loading Text */}
+      <p className="mt-4 text-lg">{loadingText}...</p>
     </div>
   );
 };
