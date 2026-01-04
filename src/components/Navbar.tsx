@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
@@ -11,210 +10,124 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
-import {
-  Home,
   Heart,
-  Lightbulb,
-  Store,
-  MessageCircle,
-  Building,
   MapPin,
   User,
   ShoppingCart,
-  Menu,
-  Globe,
-  LogOut,
   ChevronDown,
+  Home,
   Activity,
+  Lightbulb,
+  Store,
+  MessageCircle,
+  MoreHorizontal,
 } from 'lucide-react';
 
 const Navbar: React.FC = () => {
-  const { t, language, setLanguage, languageNames, availableLanguages } = useLanguage();
-  const { user, isAuthenticated, logout } = useAuth();
-  const { itemCount } = useCart();
   const location = useLocation();
-  const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const { itemCount } = useCart();
+  const [pincodeOpen, setPincodeOpen] = useState(false);
 
   const navItems = [
-    { path: '/', label: t.home, icon: Home, emoji: '🏠', color: 'bg-primary' },
-    { path: '/symptoms', label: t.symptomTracker, icon: Activity, emoji: '🩺', color: 'bg-rose-500' },
-    { path: '/tips', label: t.healthTips, icon: Lightbulb, emoji: '💡', color: 'bg-amber-500' },
-    { path: '/store', label: t.medicineStore, icon: Store, emoji: '💊', color: 'bg-emerald-500' },
-    { path: '/assistant', label: t.aiAssistant, icon: MessageCircle, emoji: '🤖', color: 'bg-blue-500' },
-    { path: '/schemes', label: t.sarkariYojana, icon: Building, emoji: '🏛️', color: 'bg-purple-500' },
-    { path: '/nearby', label: t.nearbyHospitals, icon: MapPin, emoji: '🏥', color: 'bg-cyan-500' },
+    { path: '/', label: 'Home', icon: Home },
+    { path: '/symptoms', label: 'Symptom Tracker', icon: Activity },
+    { path: '/tips', label: 'Health Tips', icon: Lightbulb },
+    { path: '/store', label: 'Medicine Store', icon: Store },
+    { path: '/assistant', label: 'AI Assistant', icon: MessageCircle },
   ];
 
   const isActive = (path: string) => location.pathname === path;
 
-  const languageFlags: Record<string, string> = {
-    hi: '🇮🇳',
-    en: '🇬🇧',
-    bn: '🇧🇩',
-    mr: '🇮🇳',
-    bho: '🇮🇳',
-    mai: '🇮🇳',
-  };
-
   return (
-    <nav className="sticky top-0 z-40 w-full bg-card border-b-2 border-border shadow-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+    <header className="sticky top-0 z-50 w-full bg-white border-b">
+      {/* TOP BAR */}
+      <div className="flex items-center justify-between px-6 h-14">
+        {/* LEFT: Logo + Pincode */}
+        <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-chart-2 rounded-xl flex items-center justify-center shadow-md">
-              <Heart className="w-6 h-6 text-primary-foreground" />
+            <div className="w-9 h-9 rounded-lg bg-green-600 flex items-center justify-center">
+              <Heart className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-lg text-foreground hidden sm:block">
-              {t.appName}
-            </span>
+            <span className="font-semibold text-lg">Swasthya Saathi</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navItems.slice(0, 5).map((item) => (
-              <Link key={item.path} to={item.path}>
-                <Button
-                  variant={isActive(item.path) ? 'default' : 'ghost'}
-                  size="sm"
-                  className={`gap-2 ${isActive(item.path) ? '' : 'hover:bg-secondary'}`}
-                >
-                  <span className="text-base">{item.emoji}</span>
-                  <span className="hidden xl:inline">{item.label}</span>
-                </Button>
-              </Link>
-            ))}
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1">
-                  <span>⋯</span>
-                  {language === 'hi' ? 'और' : 'More'}
-                  <ChevronDown className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="border-2 border-border">
-                {navItems.slice(5).map((item) => (
-                  <DropdownMenuItem key={item.path} asChild>
-                    <Link to={item.path} className="flex items-center gap-3 py-2">
-                      <span className="text-xl">{item.emoji}</span>
-                      <span>{item.label}</span>
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <DropdownMenu open={pincodeOpen} onOpenChange={setPincodeOpen}>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-1 text-sm text-gray-700 hover:text-black">
+                ⚡ Express delivery to
+                <span className="font-medium">Select Pincode</span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>Set Pincode</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
-          {/* Right Side */}
-          <div className="flex items-center gap-2">
-            {/* Language Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2 border-2">
-                  <span className="text-lg">{languageFlags[language]}</span>
-                  <Globe className="w-4 h-4" />
-                  <span className="hidden sm:inline">{languageNames[language]}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="border-2 border-border">
-                {availableLanguages.map((lang) => (
-                  <DropdownMenuItem
-                    key={lang}
-                    onClick={() => setLanguage(lang)}
-                    className={`gap-3 py-2 ${language === lang ? 'bg-secondary' : ''}`}
-                  >
-                    <span className="text-xl">{languageFlags[lang]}</span>
-                    <span>{languageNames[lang]}</span>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+        {/* RIGHT: Login | Offers | Cart */}
+        <div className="flex items-center gap-6 text-sm">
+          <Link to="/auth" className="flex items-center gap-1">
+            <User className="w-4 h-4" />
+            Hello, Log in
+          </Link>
 
-            {/* Cart */}
-            <Link to="/cart">
-              <Button variant="outline" size="sm" className="relative border-2 gap-1">
-                <span className="text-lg">🛒</span>
-                {itemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-bold animate-pulse">
-                    {itemCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+          <Link to="/offers" className="flex items-center gap-1">
+            ⚙ Offers
+          </Link>
 
-            {/* Profile / Login */}
-            {isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2 border-2">
-                    <span className="text-lg">👤</span>
-                    <span className="hidden sm:inline">{user?.name?.split(' ')[0]}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="border-2 border-border">
-                  <DropdownMenuItem asChild>
-                    <Link to="/profile" className="flex items-center gap-3 py-2">
-                      <span className="text-xl">👤</span>
-                      {t.myProfile}
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={logout} className="flex items-center gap-3 py-2 text-destructive">
-                    <span className="text-xl">👋</span>
-                    {t.logout}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link to="/auth">
-                <Button size="sm" className="gap-2">
-                  <span className="text-lg">🔐</span>
-                  {t.login}
-                </Button>
-              </Link>
+          <Link to="/cart" className="relative flex items-center gap-1">
+            <ShoppingCart className="w-4 h-4" />
+            Cart
+            {itemCount > 0 && (
+              <span className="absolute -top-2 -right-3 bg-green-600 text-white text-xs rounded-full px-1">
+                {itemCount}
+              </span>
             )}
-
-            {/* Mobile Menu */}
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild className="lg:hidden">
-                <Button variant="outline" size="sm" className="border-2">
-                  <Menu className="w-5 h-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-80 border-l-2 border-border">
-                <SheetHeader>
-                  <SheetTitle className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-chart-2 rounded-xl flex items-center justify-center">
-                      <Heart className="w-5 h-5 text-primary-foreground" />
-                    </div>
-                    {t.appName}
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-2 mt-6">
-                  {navItems.map((item) => (
-                    <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
-                      <Button
-                        variant={isActive(item.path) ? 'default' : 'ghost'}
-                        className="w-full justify-start gap-4 h-12 text-base"
-                      >
-                        <span className="text-2xl">{item.emoji}</span>
-                        {item.label}
-                      </Button>
-                    </Link>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+          </Link>
         </div>
       </div>
-    </nav>
+
+      {/* PRIMARY NAVIGATION */}
+      <div className="border-t">
+        <nav className="flex justify-center gap-2 py-2">
+          {navItems.map((item) => (
+            <Link key={item.path} to={item.path}>
+              <Button
+                variant="ghost"
+                className={`gap-2 rounded-full px-4 ${
+                  isActive(item.path)
+                    ? 'bg-green-600 text-white hover:bg-green-600'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <item.icon className="w-4 h-4" />
+                {item.label}
+              </Button>
+            </Link>
+          ))}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="rounded-full px-4 gap-2">
+                <MoreHorizontal className="w-4 h-4" />
+                More
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem asChild>
+                <Link to="/schemes">Government Schemes</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/nearby">Nearby Hospitals</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </nav>
+      </div>
+    </header>
   );
 };
 
